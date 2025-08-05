@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from "@expo/vector-icons";
 import { rw, rh, rs } from '../../utils/responsive';
-
+import { FormDataProvider } from './context';
 
 // Reusable Header Component
 export function OnboardingHeader({ title }: { title: string }) {
@@ -24,6 +24,7 @@ export function OnboardingHeader({ title }: { title: string }) {
 
 export default function OnboardingLayout() {
     return (
+        <FormDataProvider> 
         <Stack
             screenOptions={{
                 headerShown: false,
@@ -35,6 +36,8 @@ export default function OnboardingLayout() {
             <Stack.Screen name="bank" options={{ headerShown: false }} />
             <Stack.Screen name="final" options={{ headerShown: false }} />
         </Stack>
+        </FormDataProvider>
+
     );
 }
 

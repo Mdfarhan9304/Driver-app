@@ -1,19 +1,42 @@
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Platform, KeyboardAvoidingView, TextInput } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
-import { rw, rh, rs, fontSizes } from '../../utils/responsive';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import { OnboardingHeader } from './_layout';
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from 'expo-router';
+import React, { useEffect } from 'react';
+import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
 import Button from '../../components/button';
+import ProfilePicturePicker from '../../components/ProfilePicturePicker';
+import { DocumentUploadResult } from '../../services/documentService';
+import { rh, rs, rw } from '../../utils/responsive';
+import { OnboardingHeader } from './_layout';
+import { useFormData } from './context';
 
 export default function Onboarding() {
     const router = useRouter();
+    const { formData, updateField } = useFormData();
+
+    // Debug: Log form data changes
+    useEffect(() => {
+        console.log("Current form data:", formData);
+        console.log("Profile picture in form data:", formData.documents?.profilePicture);
+    }, [formData]);
 
     const handleFinishOnboarding = async () => {
         // TODO: Save that onboarding is complete using AsyncStorage
         // await AsyncStorage.setItem('hasLaunched', 'true');
         router.push('/vehicle');
+    };
+
+    const handleProfileImageSelected = (result: DocumentUploadResult) => {
+        console.log("Profile image selected:", result);
+        // Update the form data with the profile picture - with null checks
+        updateField('documents', {
+            ...(formData.documents || {}),
+            profilePicture: [result]
+        });
+        console.log("Updated form data documents:", {
+            ...(formData.documents || {}),
+            profilePicture: [result]
+        });
     };
 
     return (
@@ -29,10 +52,16 @@ export default function Onboarding() {
                         <View style={styles.innerContent}>
                             <FontAwesome5 name="user-circle" size={rw(20)} color="black" />
                             <Text style={styles.innerHeader}>Profile Details</Text>
-                          
-                            <TextInput style={styles.input} placeholder="First name" />
-                            <TextInput style={styles.input} placeholder="Last name" />
-                            <TextInput style={styles.input} placeholder="Email(optional)" />
+
+                            {/* Profile Picture Picker */}
+                            <ProfilePicturePicker
+                                onImageSelected={handleProfileImageSelected}
+                                currentImage={formData.documents?.profilePicture?.[0]?.uri}
+                            />
+
+                            <TextInput style={styles.input} placeholder="First name" value={formData.firstName || ''} onChangeText={text => updateField('firstName', text)} />
+                            <TextInput style={styles.input} placeholder="Last name" value={formData.lastName || ''} onChangeText={text => updateField('lastName', text)} />
+                            <TextInput style={styles.input} placeholder="Email(optional)" value={formData.email || ''} onChangeText={text => updateField('email', text)} />
                         </View>
 
                         <Button title="Next" onPress={handleFinishOnboarding} />

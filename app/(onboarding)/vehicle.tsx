@@ -1,15 +1,28 @@
-import { StyleSheet, Text, View, TouchableOpacity, Platform, KeyboardAvoidingView, TextInput } from 'react-native';
-import { useRouter } from 'expo-router';
 import { LinearGradient } from "expo-linear-gradient";
-import { rw, rh, rs, fontSizes } from '../../utils/responsive';
-import { OnboardingHeader } from './_layout';
+import { useRouter } from 'expo-router';
+import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
 import Button from '../../components/button';
+import { fontSizes, rh, rw } from '../../utils/responsive';
+import { OnboardingHeader } from './_layout';
+import { useFormData } from './context';
 
 const Vehicle = () => {
     const router = useRouter();
+    const { formData, updateField } = useFormData();
 
     const handleNext = async () => {
-        // TODO: Handle vehicle details
+        console.log("=== VEHICLE DETAILS SCREEN ===");
+        console.log("Current formData:", JSON.stringify(formData, null, 2));
+        console.log("Vehicle Name:", formData.vehicleName);
+        console.log("Vehicle Number:", formData.vehicleNumber);
+
+        if (!formData.vehicleName || !formData.vehicleNumber) {
+            console.log("Missing vehicle details");
+            alert("Please fill in all vehicle details");
+            return;
+        }
+
+        console.log("Navigating to document upload...");
         router.push('/document');
     };
 
@@ -26,9 +39,9 @@ const Vehicle = () => {
                         <View style={styles.innerContent}>
                             {/* Blank input container - add your vehicle form here */}
                             <Text style={styles.innerHeader}>Vehicle</Text>
-                            <TextInput style={styles.input} placeholder="Vehicle Name" />
+                            <TextInput style={styles.input} placeholder="Vehicle Name" value={formData.vehicleName} onChangeText={text => updateField('vehicleName', text)} />
                             <Text style={styles.innerHeader}>Vehicle Number</Text>
-                            <TextInput style={styles.input} placeholder="Vehicle Number" />
+                            <TextInput style={styles.input} placeholder="Vehicle Number" value={formData.vehicleNumber} onChangeText={text => updateField('vehicleNumber', text)} />
                         </View>
 
                         <Button title="Next" onPress={handleNext} />

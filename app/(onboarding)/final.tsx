@@ -4,10 +4,12 @@ import { LinearGradient } from "expo-linear-gradient";
 import { rw, rh, fontSizes } from '../../utils/responsive';
 import Verification from '../../assets//images/verification.png'
 import { TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 import { rs } from '../../utils/responsive';
 import Button from '@/components/button';
 
 const Final = () => {
+    const router = useRouter();
     return (
         <LinearGradient colors={["#470A68", "#8D14CE", "#8D14CE"]} style={styles.container}>
             <View style={styles.content}>
@@ -22,9 +24,10 @@ const Final = () => {
                         <TouchableOpacity
                             disabled={false}
                             style={[styles.button]}
+                            onPress={() => router.push('/(tabs)/home')}
                         >
                             <Text style={[styles.buttonText]}>
-                                {"Button"}
+                                {"Go to Home"}
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -66,7 +69,7 @@ const styles = StyleSheet.create({
         marginTop: rh(2),
     },
     description: {
-        fontSize: fontSizes.lg,
+        fontSize: fontSizes.md,
         maxWidth: rw(70),
         marginTop: rh(1),
         textAlign: 'center',
@@ -75,7 +78,7 @@ const styles = StyleSheet.create({
     button: {
         backgroundColor: '#F3E545',
         padding: rw(3),
-        width: rw(92),
+        width: rw(45),
         alignSelf: "center",
         justifyContent: "center",
         alignItems: "center",

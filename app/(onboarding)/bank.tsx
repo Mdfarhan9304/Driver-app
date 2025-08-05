@@ -1,13 +1,16 @@
-import { StyleSheet, Text, View, Platform, KeyboardAvoidingView, TextInput } from 'react-native';
-import { useRouter } from 'expo-router';
+import { AuthAPI } from '@/services/api';
 import { LinearGradient } from "expo-linear-gradient";
-import { rw, rh, rs } from '../../utils/responsive';
+import { useRouter } from 'expo-router';
 import React from 'react';
-import { OnboardingHeader } from './_layout';
+import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
 import Button from '../../components/button';
+import { rh, rs, rw } from '../../utils/responsive';
+import { OnboardingHeader } from './_layout';
+import { useFormData } from './context';
 
 const Bank = () => {
     const router = useRouter();
+    const { formData, updateField } = useFormData();
     const [bankDetails, setBankDetails] = React.useState({
         accountHolderName: '',
         bankName: '',
@@ -17,8 +20,50 @@ const Bank = () => {
     });
 
     const handleNext = async () => {
-        // TODO: Validate and handle bank details
-        router.push('/final');
+        // Check if profile picture exists
+        if (!formData.documents?.profilePicture || formData.documents.profilePicture.length === 0) {
+            console.warn("No profile picture found. Please go back and select a profile picture.");
+            // You can show an alert here if needed
+            // Alert.alert("Missing Profile Picture", "Please go back and select a profile picture.");
+            // return;
+        }
+
+        // Structure the data in a clean format with proper null checks
+        const registrationData = {
+            // Personal Information
+            firstName: formData.firstName || '',
+            lastName: formData.lastName || '',
+            email: formData.email || '',
+
+            // Vehicle Information
+            vehicleName: formData.vehicleName || '',
+            vehicleNumber: formData.vehicleNumber || '',
+
+            // Bank Details
+            accountHolderName: bankDetails.accountHolderName || '',
+            bankName: bankDetails.bankName || '',
+            ifscCode: bankDetails.ifscCode || '',
+            accountNumber: bankDetails.accountNumber || '',
+            upiId: bankDetails.upiId || '',
+
+            // Documents - with proper null checks
+            drivingLicense: formData.documents?.drivingLicense || [],
+            aadharCard: formData.documents?.aadharCard || [],
+            profilePicture: formData.documents?.profilePicture || []
+        };
+
+        console.log("Form Data:", formData);
+        console.log("Bank Details:", bankDetails);
+        console.log("Profile Picture from formData:", formData.documents?.profilePicture);
+        console.log("Registration Data:", registrationData);
+        console.log("Profile Picture in Registration Data:", registrationData.profilePicture);
+
+        const res = await AuthAPI.registerRider(registrationData);
+        console.log("Bank registration response:", res);
+
+        if (res.status === 'success') {
+            router.push('/final');
+        }
     };
 
     const handleInputChange = (field: keyof typeof bankDetails, value: string) => {
@@ -26,6 +71,8 @@ const Bank = () => {
             ...prev,
             [field]: value
         }));
+        updateField(field, value);
+
     };
 
     return (
@@ -95,7 +142,7 @@ const Bank = () => {
                         </View>
 
                         <Button
-                            title="Next"
+                            title="Submit"
                             onPress={handleNext}
                         // disabled={!bankDetails.accountHolderName || !bankDetails.bankName ||
                         //     !bankDetails.ifscCode || !bankDetails.accountNumber}
